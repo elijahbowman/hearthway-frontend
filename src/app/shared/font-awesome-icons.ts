@@ -22,7 +22,6 @@ import {
   faHotel,
   IconDefinition
 } from "@fortawesome/free-solid-svg-icons";
-import {faAirbnb} from "@fortawesome/free-brands-svg-icons";
 
 export const fontAwesomeIcons: IconDefinition[] = [
   faBan,
@@ -63,6 +62,5 @@ export const fontAwesomeIcons: IconDefinition[] = [
   faUmbrellaBeach,
   faUser,
   faWater,
-  faAirbnb,
   faHotel
 ]
