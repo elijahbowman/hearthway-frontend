@@ -6,8 +6,11 @@ import {CountryService} from "../country.service";
 import {ToastService} from "../../../../../layout/toast.service";
 import {OpenStreetMapProvider} from "leaflet-geosearch";
 import {Country} from "../country.model";
-import L, {circle, latLng, polygon, tileLayer} from "leaflet";
-import {filter} from "rxjs";
+import L, {latLng, tileLayer} from "leaflet";
+
+// OSM tile usage policy: no {s} subdomains, and attribution is mandatory.
+const OSM_TILE_URL = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
+const OSM_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 
 @Component({
   selector: 'app-location-map',
@@ -27,6 +30,7 @@ export class LocationMapComponent {
 
   private map: L.Map | undefined;
   private provider: OpenStreetMapProvider | undefined;
+  private marker: L.Marker | undefined;
 
   location = input.required<string>();
   placeholder = input<string>("Select your home country");
@@ -40,23 +44,10 @@ export class LocationMapComponent {
 
   options = {
     layers: [
-      tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {maxZoom: 18, attribution: "..."}),
+      tileLayer(OSM_TILE_URL, {maxZoom: 18, attribution: OSM_ATTRIBUTION}),
     ],
-    zoom: 5,
-    center: latLng(46.87996, -121.726909)
-  }
-
-  layersControl = {
-    baseLayers: {
-      "Open Street Map": tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom: 18,
-        attribution: "..."
-      }),
-    },
-    overlays: {
-      "Big Circle": circle([46.95, -122], {radius: 5000}),
-      "Big square": polygon([[46.8, -121.55], [46.8, -121.55], [46.8, -121.55], [46.8, -121.55]])
-    }
+    zoom: 2,
+    center: latLng(20, 0)
   }
 
   countries: Array<Country> = [];
@@ -70,6 +61,9 @@ export class LocationMapComponent {
   onMapReady(map: L.Map) {
     this.map = map;
     this.configSearchControl();
+    if (this.countries.length > 0) {
+      this.changeMapLocation(this.location());
+    }
   }
 
   private configSearchControl() {
@@ -99,14 +93,18 @@ export class LocationMapComponent {
 
   private changeMapLocation(term: string) {
     this.currentLocation = this.countries.find(country => country.cca3 === term);
-    if (this.currentLocation) {
-      this.provider!.search({query: this.currentLocation.name.common})
+    // The countries effect can fire before leafletMapReady; onMapReady retries.
+    if (this.currentLocation && this.map && this.provider) {
+      const map = this.map;
+      this.provider.search({query: this.currentLocation.name.common})
         .then((results) => {
           if (results && results.length > 0) {
             const firstResult = results[0];
-            this.map!.setView(new L.LatLng(firstResult.y, firstResult.x), 13);
-            L.marker([firstResult.y, firstResult.x])
-              .addTo(this.map!)
+            const position = new L.LatLng(firstResult.y, firstResult.x);
+            map.setView(position, 13);
+            this.marker?.remove();
+            this.marker = L.marker(position)
+              .addTo(map)
               .bindPopup(firstResult.label)
               .openPopup();
           }
@@ -115,9 +113,8 @@ export class LocationMapComponent {
   }
 
   search(newCompleteEvent: AutoCompleteCompleteEvent): void {
+    const query = newCompleteEvent.query.toLowerCase();
     this.filteredCountries =
-      this.countries.filter(country => country.name.common.toLowerCase().startsWith(newCompleteEvent.query))
+      this.countries.filter(country => country.name.common.toLowerCase().startsWith(query))
   }
-
-  protected readonly filter = filter;
 }
