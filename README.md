@@ -2,7 +2,8 @@
 
 Angular frontend of the HavenHub
 
-[Spring Boot Backend](https://github.com/elijahbowman/haven-hub-backend)
+<!-- TODO: replace TODO-USERNAME and TODO-BACKEND-REPO with the real backend repo URL -->
+[Spring Boot Backend](https://github.com/TODO-USERNAME/TODO-BACKEND-REPO)
 
 ### Key Features
 - Booking management for travelers
