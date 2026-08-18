@@ -93,12 +93,10 @@ export class DisplayListingComponent implements OnInit, OnDestroy {
   }
 
   private putCoverPictureFirst(pictures: Array<DisplayPicture>) {
-    const coverIndex = pictures.findIndex(picture => picture.isCover);
-    if (coverIndex) {
-      const cover = pictures[coverIndex];
-      pictures.splice(coverIndex, 1);
-      pictures.unshift(cover);
-    }
-    return pictures.slice(0, 5);
+    const cover = pictures.find(picture => picture.isCover);
+    const ordered = cover
+      ? [cover, ...pictures.filter(picture => picture !== cover)]
+      : [...pictures];
+    return ordered.slice(0, 5);
   }
 }
