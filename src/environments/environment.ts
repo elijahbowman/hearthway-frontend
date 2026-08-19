@@ -1,3 +1,4 @@
 export const environment = {
-  API_URL: "//localhost:4200/api",
+  // Same-origin: in production the SPA and API are served from one host.
+  API_URL: "/api",
 };
