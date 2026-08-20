@@ -16,6 +16,12 @@
           (click)="onNewBooking()">
     Reserve
   </button>
+  @if (selectionIncludesBookedNight) {
+    <div class="w-full mt-4">
+      <p-message styleClass="w-full" severity="warn"
+                 text="Your dates include nights that are already booked"></p-message>
+    </div>
+  }
   @if (!this.authService.isAuthenticated()) {
     <div class="w-full mt-4">
       <p-message styleClass="w-full" severity="warn"

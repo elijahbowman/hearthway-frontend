@@ -1,4 +1,4 @@
-import {Component, effect, inject, input, OnDestroy, OnInit} from '@angular/core';
+import {Component, effect, inject, input, OnDestroy, OnInit, untracked} from '@angular/core';
 import {Listing} from "../../landlord/model/listing.model";
 import {BookingService} from "../service/booking.service";
 import {ToastService} from "../../layout/toast.service";
@@ -10,6 +10,7 @@ import {CurrencyPipe} from "@angular/common";
 import {CalendarModule} from "primeng/calendar";
 import {FormsModule} from "@angular/forms";
 import {MessageModule} from "primeng/message";
+import {isValidStayRange, nightsOfStay, stayIncludesAnyNight} from "../../shared/date-range";
 
 @Component({
   selector: 'app-book-date',
@@ -35,6 +36,7 @@ export class BookDateComponent implements OnInit, OnDestroy {
 
   bookingDates = new Array<Date>();
   totalPrice = 0;
+  selectionIncludesBookedNight = false;
 
   minDate = new Date();
   bookedDates = new Array<Date>();
@@ -47,28 +49,35 @@ export class BookDateComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.bookingService.resetCreateBooking();
+    this.bookingService.resetCheckAvailability();
   }
 
   ngOnInit(): void {
+    // Clear any availability left over from the previously viewed listing.
+    this.bookingService.resetCheckAvailability();
     this.bookingService.checkAvailability(this.listingPublicId());
   }
 
   onDateChange(newBookingDates: Array<Date>) {
     this.bookingDates = newBookingDates;
-    if (this.validateMakeBooking()) {
-      const startBookingDateDayJS = dayjs(newBookingDates[0]);
-      const endBookingDateDayJS = dayjs(newBookingDates[1]);
-      this.totalPrice = endBookingDateDayJS.diff(startBookingDateDayJS, "days") * this.listing().price.value;
+    this.updateSelection();
+  }
+
+  private updateSelection() {
+    if (isValidStayRange(this.bookingDates)) {
+      const [checkIn, checkOut] = this.bookingDates;
+      const nights = dayjs(checkOut).startOf("day").diff(dayjs(checkIn).startOf("day"), "day");
+      this.totalPrice = nights * this.listing().price.value;
+      this.selectionIncludesBookedNight = stayIncludesAnyNight(checkIn, checkOut, this.bookedDates);
     } else {
       this.totalPrice = 0;
+      this.selectionIncludesBookedNight = false;
     }
   }
 
   validateMakeBooking() {
-    return this.bookingDates.length === 2
-      && this.bookingDates[0] !== null
-      && this.bookingDates[1] !== null
-      && this.bookingDates[0].getDate() !== this.bookingDates[1].getDate()
+    return isValidStayRange(this.bookingDates)
+      && !this.selectionIncludesBookedNight
       && this.authService.isAuthenticated();
   }
 
@@ -86,6 +95,9 @@ export class BookDateComponent implements OnInit, OnDestroy {
       const checkAvailabilityState = this.bookingService.checkAvailabilitySig();
       if (checkAvailabilityState.status === "OK") {
         this.bookedDates = this.mapBookedDatesToDate(checkAvailabilityState.value!);
+        untracked(() => this.updateSelection());
+      } else if (checkAvailabilityState.status === "INIT") {
+        this.bookedDates = [];
       } else if (checkAvailabilityState.status === "ERROR") {
         this.toastService.send({
           severity: "error", detail: "Error when fetching the not available dates", summary: "Error",
@@ -97,21 +109,9 @@ export class BookDateComponent implements OnInit, OnDestroy {
   private mapBookedDatesToDate(bookedDatesDTOFromClients: Array<BookedDatesDTOFromClient>): Array<Date> {
     const bookedDates = new Array<Date>();
     for (let bookedDate of bookedDatesDTOFromClients) {
-      bookedDates.push(...this.getDatesInRange(bookedDate));
+      bookedDates.push(...nightsOfStay(bookedDate.startDate, bookedDate.endDate));
     }
     return bookedDates;
-  }
-
-  private getDatesInRange(bookedDate: BookedDatesDTOFromClient) {
-    const dates = new Array<Date>();
-
-    let currentDate = bookedDate.startDate;
-    while (currentDate <= bookedDate.endDate) {
-      dates.push(currentDate.toDate());
-      currentDate = currentDate.add(1, "day");
-    }
-
-    return dates;
   }
 
   private listenToCreateBooking() {

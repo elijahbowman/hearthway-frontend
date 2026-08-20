@@ -58,6 +58,10 @@ export class BookingService {
   constructor() {
   }
 
+  resetCheckAvailability(): void {
+    this.checkAvailability$.set(State.Builder<Array<BookedDatesDTOFromClient>>().forInit());
+  }
+
   private mapDateToDayJS = () => {
     return (bookedDates: Array<BookedDatesDTOFromServer>): Array<BookedDatesDTOFromClient> => {
       return bookedDates.map(reservedDate => this.convertDateToDayJS(reservedDate))

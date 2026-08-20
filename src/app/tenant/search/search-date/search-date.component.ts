@@ -2,6 +2,7 @@ import {Component, effect, EventEmitter, input, Output} from '@angular/core';
 import {BookedDatesDTOFromServer} from "../../model/booking.model";
 import {CalendarModule} from "primeng/calendar";
 import {FormsModule} from "@angular/forms";
+import {isValidStayRange} from "../../../shared/date-range";
 
 @Component({
   selector: 'app-search-date',
@@ -42,10 +43,7 @@ export class SearchDateComponent {
   }
 
   private validateDateSearch() {
-    return this.searchDateRaw.length === 2
-      && this.searchDateRaw[0] !== null
-      && this.searchDateRaw[1] !== null
-      && this.searchDateRaw[0].getDate() !== this.searchDateRaw[1].getDate()
+    return isValidStayRange(this.searchDateRaw);
   }
 
   constructor() {
