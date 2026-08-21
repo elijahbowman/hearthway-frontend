@@ -47,14 +47,19 @@ export class ReservationComponent implements OnInit, OnDestroy {
     effect(() => {
       const cancelState = this.bookingService.cancelSig();
       if (cancelState.status === "OK") {
-        const listingToDeleteIndex = this.reservationListings.findIndex(listing => listing.bookingPublicId === cancelState.value);
-        this.reservationListings.splice(listingToDeleteIndex, 1);
+        this.reservationListings = this.reservationListings.filter(
+          listing => listing.bookingPublicId !== cancelState.value
+        );
         this.toastService.send({
           severity: "success", summary: "Successfully cancelled reservation",
         });
       } else if (cancelState.status === "ERROR") {
-        const listingToDeleteIndex = this.reservationListings.findIndex(listing => listing.bookingPublicId === cancelState.value);
-        this.reservationListings[listingToDeleteIndex].loading = false;
+        const listingInError = this.reservationListings.find(
+          listing => listing.bookingPublicId === cancelState.value
+        );
+        if (listingInError) {
+          listingInError.loading = false;
+        }
         this.toastService.send({
           severity: "error", summary: "Error when canceling reservation",
         });

@@ -37,6 +37,7 @@ export class PropertiesComponent implements OnInit, OnDestroy {
         this.loadingFetchAll = false;
         this.listings = allListingState.value;
       } else if (allListingState.status === "ERROR") {
+        this.loadingFetchAll = false;
         this.toastService.send({
           severity: "error", summary: "Error", detail: "Error when fetching the listing",
         });
@@ -48,14 +49,15 @@ export class PropertiesComponent implements OnInit, OnDestroy {
     effect(() => {
       const deleteState = this.landlordListingService.deleteSig();
       if (deleteState.status === "OK" && deleteState.value) {
-        const listingToDeleteIndex = this.listings?.findIndex(listing => listing.publicId === deleteState.value);
-        this.listings?.splice(listingToDeleteIndex!, 1);
+        this.listings = this.listings?.filter(listing => listing.publicId !== deleteState.value);
         this.toastService.send({
           severity: "success", summary: "Deleted successfully", detail: "Listing deleted successfully.",
         });
       } else if (deleteState.status === "ERROR") {
-        const listingToDeleteIndex = this.listings?.findIndex(listing => listing.publicId === deleteState.value);
-        this.listings![listingToDeleteIndex!].loading = false;
+        const listingInError = this.listings?.find(listing => listing.publicId === deleteState.value);
+        if (listingInError) {
+          listingInError.loading = false;
+        }
         this.toastService.send({
           severity: "error", summary: "Error", detail: "Error when deleting the listing",
         });
@@ -66,6 +68,8 @@ export class PropertiesComponent implements OnInit, OnDestroy {
 
 
   ngOnDestroy(): void {
+    // Otherwise the last delete result replays (toast + list update) on the next visit.
+    this.landlordListingService.resetDelete();
   }
 
   ngOnInit(): void {

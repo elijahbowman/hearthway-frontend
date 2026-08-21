@@ -97,7 +97,8 @@ export class BookingService {
     this.http.delete<string>(`${environment.API_URL}/booking/cancel`, {params})
       .subscribe({
         next: canceledPublicId => this.cancel$.set(State.Builder<string>().forSuccess(canceledPublicId)),
-        error: err => this.cancel$.set(State.Builder<string>().forError(err)),
+        // Keep the id on error so the page knows which booking to reset.
+        error: err => this.cancel$.set(State.Builder<string>().forError(err, bookingPublicId)),
       });
   }
 
