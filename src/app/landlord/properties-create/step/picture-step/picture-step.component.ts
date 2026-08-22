@@ -4,6 +4,9 @@ import {InputTextModule} from "primeng/inputtext";
 import {ButtonModule} from "primeng/button";
 import {NewListingPicture} from "../../../model/picture.model";
 
+// Stable ids for tracking; file names can repeat (e.g. "image.jpg" from different folders).
+let nextPictureId = 0;
+
 @Component({
   selector: 'app-picture-step',
   standalone: true,
@@ -32,32 +35,30 @@ export class PictureStepComponent {
   onUploadNewPicture(target: EventTarget | null) {
     const picturesFileList = this.extractFileFromTarget(target);
     if(picturesFileList !== null) {
+      const addedPictures = new Array<NewListingPicture>();
       for(let i = 0 ; i < picturesFileList.length; i++) {
         const picture = picturesFileList.item(i);
         if (picture !== null) {
-          const displayPicture: NewListingPicture = {
+          addedPictures.push({
+            id: nextPictureId++,
             file: picture,
             urlDisplay: URL.createObjectURL(picture)
-          }
-          this.pictures().push(displayPicture);
+          });
         }
       }
-      this.picturesChange.emit(this.pictures());
-      this.validatePictures();
-    }
-  }
-
-  private validatePictures() {
-    if (this.pictures().length >= 5) {
-      this.stepValidityChange.emit(true);
-    } else {
-      this.stepValidityChange.emit(false);
+      this.updatePictures([...this.pictures(), ...addedPictures]);
+      // Allow selecting the same file again after deleting it.
+      (target as HTMLInputElement).value = "";
     }
   }
 
   onTrashPicture(pictureToDelete: NewListingPicture) {
-    const indexToDelete = this.pictures().findIndex(picture => picture.file.name === pictureToDelete.file.name);
-    this.pictures().splice(indexToDelete, 1);
-    this.validatePictures();
+    URL.revokeObjectURL(pictureToDelete.urlDisplay);
+    this.updatePictures(this.pictures().filter(picture => picture.id !== pictureToDelete.id));
+  }
+
+  private updatePictures(pictures: Array<NewListingPicture>) {
+    this.picturesChange.emit(pictures);
+    this.stepValidityChange.emit(pictures.length >= 5);
   }
 }

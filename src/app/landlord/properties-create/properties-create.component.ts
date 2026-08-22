@@ -121,6 +121,8 @@ export class PropertiesCreateComponent implements OnDestroy {
 
   ngOnDestroy(): void {
     this.listingService.resetListingCreation();
+    // Previews are kept across wizard steps, so release them only when the dialog closes.
+    this.newListing.pictures.forEach(picture => URL.revokeObjectURL(picture.urlDisplay));
   }
 
   listenFetchUser() {

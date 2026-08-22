@@ -13,7 +13,7 @@
 
 @if (pictures()) {
   <div class="mt-2 flex flex-wrap w-full h-full">
-    @for (picture of pictures(); track picture.file.name) {
+    @for (picture of pictures(); track picture.id) {
       <div class="border-1 relative border-transparent border-round-3xl container-picture">
         <button class="absolute trash-btn p-button" (click)="onTrashPicture(picture)">
           <fa-icon icon="trash-can"></fa-icon>
