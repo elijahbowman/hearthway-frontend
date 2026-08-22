@@ -39,7 +39,7 @@
         <div class="font-bold ml-3">Hosted by {{ listing.landlord.firstname }}</div>
       </div>
       <div class="border-1 my-4 w-full border-solid border-200"></div>
-      <div>{{ listing.description.description.value }}</div>
+      <div class="listing-description">{{ listing.description.description.value }}</div>
     </div>
     <app-book-date [listingPublicId]="currentPublicId" [listing]="listing"></app-book-date>
   </div>
