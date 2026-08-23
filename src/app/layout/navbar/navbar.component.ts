@@ -10,8 +10,6 @@ import {MenuItem} from "primeng/api";
 import {ToastService} from "../toast.service";
 import {AuthService} from "../../core/auth/auth.service";
 import {User} from "../../core/model/user.model";
-import {PropertiesCreateComponent} from "../../landlord/properties-create/properties-create.component";
-import {SearchComponent} from "../../tenant/search/search.component";
 import {ActivatedRoute} from "@angular/router";
 import dayjs from "dayjs";
 
@@ -106,27 +104,35 @@ export class NavbarComponent implements OnInit {
     return this.authService.hasAnyAuthority("ROLE_LANDLORD");
   }
 
+  // The dialogs are loaded on demand so the wizards (and Leaflet, used by the
+  // location step) stay out of the initial bundle.
   openNewListing(): void {
-    this.ref = this.dialogService.open(PropertiesCreateComponent,
-      {
-        width: "60%",
-        header: "Host your home",
-        closable: true,
-        focusOnShow: true,
-        modal: true,
-        showHeader: true
-      })
+    import("../../landlord/properties-create/properties-create.component")
+      .then(({PropertiesCreateComponent}) => {
+        this.ref = this.dialogService.open(PropertiesCreateComponent,
+          {
+            width: "60%",
+            header: "Host your home",
+            closable: true,
+            focusOnShow: true,
+            modal: true,
+            showHeader: true
+          });
+      });
   }
 
   openNewSearch(): void {
-    this.ref = this.dialogService.open(SearchComponent,
-      {
-        width: "40%",
-        header: "Search",
-        closable: true,
-        focusOnShow: true,
-        modal: true,
-        showHeader: true
+    import("../../tenant/search/search.component")
+      .then(({SearchComponent}) => {
+        this.ref = this.dialogService.open(SearchComponent,
+          {
+            width: "40%",
+            header: "Search",
+            closable: true,
+            focusOnShow: true,
+            modal: true,
+            showHeader: true
+          });
       });
   }
 
