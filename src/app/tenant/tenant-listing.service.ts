@@ -7,6 +7,7 @@ import {CategoryName} from "../layout/navbar/category/category.model";
 import {environment} from "../../environments/environment";
 import {Subject} from "rxjs";
 import {Search} from "./search/search.model";
+import {toApiDate} from "../shared/date-range";
 
 @Injectable({
   providedIn: 'root'
@@ -59,7 +60,14 @@ export class TenantListingService {
 
   searchListing(newSearch: Search, pageRequest: Pagination): void {
     const params = createPaginationOption(pageRequest);
-    this.http.post<Page<CardListing>>(`${environment.API_URL}/tenant-listing/search`, newSearch, {params})
+    const body = {
+      ...newSearch,
+      dates: {
+        startDate: toApiDate(newSearch.dates.startDate),
+        endDate: toApiDate(newSearch.dates.endDate),
+      },
+    };
+    this.http.post<Page<CardListing>>(`${environment.API_URL}/tenant-listing/search`, body, {params})
       .subscribe({
         next: displayListingCards => this.search$.next(State.Builder<Page<CardListing>>().forSuccess(displayListingCards)),
         error: err => this.search$.next(State.Builder<Page<CardListing>>().forError(err))

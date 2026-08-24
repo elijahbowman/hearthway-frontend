@@ -1,5 +1,5 @@
 import {Component, effect, EventEmitter, input, Output} from '@angular/core';
-import {BookedDatesDTOFromServer} from "../../model/booking.model";
+import {SearchDates} from "../search.model";
 import {CalendarModule} from "primeng/calendar";
 import {FormsModule} from "@angular/forms";
 import {isValidStayRange} from "../../../shared/date-range";
@@ -16,14 +16,14 @@ import {isValidStayRange} from "../../../shared/date-range";
 })
 export class SearchDateComponent {
 
-  dates = input.required<BookedDatesDTOFromServer>();
+  dates = input.required<SearchDates>();
 
   searchDateRaw = new Array<Date>();
 
   minDate = new Date();
 
   @Output()
-  datesChange = new EventEmitter<BookedDatesDTOFromServer>();
+  datesChange = new EventEmitter<SearchDates>();
 
   @Output()
   stepValidityChange = new EventEmitter<boolean>();
@@ -34,7 +34,7 @@ export class SearchDateComponent {
     this.stepValidityChange.emit(isDateValid);
 
     if (isDateValid) {
-      const searchDate: BookedDatesDTOFromServer = {
+      const searchDate: SearchDates = {
         startDate: this.searchDateRaw[0],
         endDate: this.searchDateRaw[1]
       }

@@ -1,9 +1,8 @@
 import {Component, inject} from '@angular/core';
 import {Step} from "../../landlord/properties-create/step.model";
-import {Search} from "./search.model";
+import {Search, SearchDates} from "./search.model";
 import {DynamicDialogRef} from "primeng/dynamicdialog";
 import {Router} from "@angular/router";
-import {BookedDatesDTOFromServer} from "../model/booking.model";
 import {NewListingInfo} from "../../landlord/model/listing.model";
 import dayjs from "dayjs";
 import {
@@ -98,7 +97,7 @@ export class SearchComponent {
     this.newSearch.location = newLocation;
   }
 
-  onNewDate(newDates: BookedDatesDTOFromServer) {
+  onNewDate(newDates: SearchDates) {
     this.newSearch.dates =  newDates
   }
 

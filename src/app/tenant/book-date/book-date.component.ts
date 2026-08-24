@@ -5,8 +5,9 @@ import {ToastService} from "../../layout/toast.service";
 import {AuthService} from "../../core/auth/auth.service";
 import {Router} from "@angular/router";
 import dayjs from "dayjs";
-import {BookedDatesDTOFromClient, CreateBooking} from "../model/booking.model";
+import {CreateBooking} from "../model/booking.model";
 import {CurrencyPipe} from "@angular/common";
+import {HttpStatusCode} from "@angular/common/http";
 import {CalendarModule} from "primeng/calendar";
 import {FormsModule} from "@angular/forms";
 import {MessageModule} from "primeng/message";
@@ -39,7 +40,12 @@ export class BookDateComponent implements OnInit, OnDestroy {
   selectionIncludesBookedNight = false;
 
   minDate = new Date();
+  // Every booked night, used to validate a selection.
   bookedDates = new Array<Date>();
+  // Booked nights except each booking's first night: that day must stay
+  // selectable as a check-out. Picking it as a check-in includes a booked night
+  // and is caught by validation.
+  disabledDates = new Array<Date>();
 
   constructor() {
     this.listenToCheckAvailableDate();
@@ -94,24 +100,20 @@ export class BookDateComponent implements OnInit, OnDestroy {
     effect(() => {
       const checkAvailabilityState = this.bookingService.checkAvailabilitySig();
       if (checkAvailabilityState.status === "OK") {
-        this.bookedDates = this.mapBookedDatesToDate(checkAvailabilityState.value!);
+        const stays = checkAvailabilityState.value!
+          .map(stay => nightsOfStay(stay.startDate, stay.endDate));
+        this.bookedDates = stays.flat();
+        this.disabledDates = stays.flatMap(nights => nights.slice(1));
         untracked(() => this.updateSelection());
       } else if (checkAvailabilityState.status === "INIT") {
         this.bookedDates = [];
+        this.disabledDates = [];
       } else if (checkAvailabilityState.status === "ERROR") {
         this.toastService.send({
           severity: "error", detail: "Error when fetching the not available dates", summary: "Error",
         });
       }
     });
-  }
-
-  private mapBookedDatesToDate(bookedDatesDTOFromClients: Array<BookedDatesDTOFromClient>): Array<Date> {
-    const bookedDates = new Array<Date>();
-    for (let bookedDate of bookedDatesDTOFromClients) {
-      bookedDates.push(...nightsOfStay(bookedDate.startDate, bookedDate.endDate));
-    }
-    return bookedDates;
   }
 
   private listenToCreateBooking() {
@@ -123,9 +125,18 @@ export class BookDateComponent implements OnInit, OnDestroy {
         });
         this.router.navigate(['/booking']);
       } else if (createBookingState.status === "ERROR") {
+        const error = createBookingState.error;
+        const conflict = error?.status === HttpStatusCode.Conflict;
         this.toastService.send({
-          severity: "error", detail: "Booking created failed",
+          severity: "error",
+          summary: conflict ? "Dates no longer available" : "Booking failed",
+          // The API returns a ProblemDetail with a readable reason.
+          detail: error?.error?.detail ?? "Please try again.",
         });
+        if (conflict) {
+          // Someone booked these nights in the meantime; show them as unavailable.
+          untracked(() => this.bookingService.checkAvailability(this.listingPublicId()));
+        }
       }
     });
   }

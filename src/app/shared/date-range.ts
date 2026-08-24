@@ -27,6 +27,15 @@ export function nightsOfStay(checkIn: Dayjs, checkOut: Dayjs): Array<Date> {
 }
 
 /**
+ * The API exchanges calendar days as YYYY-MM-DD. Formatting the local date avoids
+ * JSON.stringify(Date), which sends a UTC instant and shifts the day for users
+ * east of UTC.
+ */
+export function toApiDate(date: Date): string {
+  return dayjs(date).format("YYYY-MM-DD");
+}
+
+/**
  * True when any of the given nights falls inside [checkIn, checkOut).
  */
 export function stayIncludesAnyNight(checkIn: Date, checkOut: Date, nights: Array<Date>): boolean {

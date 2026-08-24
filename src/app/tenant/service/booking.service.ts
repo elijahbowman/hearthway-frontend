@@ -5,6 +5,7 @@ import {BookedDatesDTOFromClient, BookedDatesDTOFromServer, BookedListing, Creat
 import {environment} from "../../../environments/environment";
 import {map} from "rxjs";
 import dayjs from "dayjs";
+import {toApiDate} from "../../shared/date-range";
 
 @Injectable({
   providedIn: 'root'
@@ -35,7 +36,12 @@ export class BookingService {
   getBookedListingForLandlordSig = computed(() => this.getBookedListingForLandlord$());
 
   create(newBooking: CreateBooking) {
-    this.http.post<boolean>(`${environment.API_URL}/booking/create`, newBooking)
+    const body = {
+      ...newBooking,
+      startDate: toApiDate(newBooking.startDate),
+      endDate: toApiDate(newBooking.endDate),
+    };
+    this.http.post<boolean>(`${environment.API_URL}/booking/create`, body)
       .subscribe({
         next: created => this.createBooking$.set(State.Builder<boolean>().forSuccess(created)),
         error: err => this.createBooking$.set(State.Builder<boolean>().forError(err)),
