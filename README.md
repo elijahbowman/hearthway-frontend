@@ -1,5 +1,8 @@
 # HavenHub frontend
 
+<!-- TODO: replace TODO-USERNAME and TODO-FRONTEND-REPO so the badge points at this repo -->
+[![CI](https://github.com/TODO-USERNAME/TODO-FRONTEND-REPO/actions/workflows/ci.yml/badge.svg)](https://github.com/TODO-USERNAME/TODO-FRONTEND-REPO/actions/workflows/ci.yml)
+
 Angular frontend of the HavenHub
 
 <!-- TODO: replace TODO-USERNAME and TODO-BACKEND-REPO with the real backend repo URL -->
