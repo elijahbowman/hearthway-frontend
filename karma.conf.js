@@ -18,7 +18,7 @@ module.exports = function (config) {
       suppressAll: true
     },
     coverageReporter: {
-      dir: require('path').join(__dirname, './coverage/haven-hub-front'),
+      dir: require('path').join(__dirname, './coverage/hearthway-frontend'),
       subdir: '.',
       reporters: [
         {type: 'html'},

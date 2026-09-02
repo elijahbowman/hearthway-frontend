@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "haven-hub-front": {
+    "hearthway-frontend": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/haven-hub-front",
+            "outputPath": "dist/hearthway-frontend",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
@@ -73,15 +73,15 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "buildTarget": "haven-hub-front:build",
+            "buildTarget": "hearthway-frontend:build",
             "proxyConfig": "proxy.conf.mjs"
           },
           "configurations": {
             "production": {
-              "buildTarget": "haven-hub-front:build:production"
+              "buildTarget": "hearthway-frontend:build:production"
             },
             "development": {
-              "buildTarget": "haven-hub-front:build:development"
+              "buildTarget": "hearthway-frontend:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -89,7 +89,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "buildTarget": "haven-hub-front:build"
+            "buildTarget": "hearthway-frontend:build"
           }
         },
         "test": {
