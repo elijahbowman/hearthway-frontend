@@ -6,6 +6,7 @@ import {CategoryService} from "../../layout/navbar/category/category.service";
 import {CountryService} from "../../landlord/properties-create/step/location-step/country.service";
 import {CurrencyPipe, DatePipe} from "@angular/common";
 import {FaIconComponent} from "@fortawesome/angular-fontawesome";
+import {pictureUrl} from "../picture-url";
 
 @Component({
   selector: 'app-card-listing',
@@ -72,6 +73,10 @@ export class CardListingComponent {
 
   onCancelBooking(bookedListing: BookedListing) {
     this.cancelBooking.emit(bookedListing);
+  }
+
+  coverUrl(): string {
+    return pictureUrl(this.listing().cover, 640);
   }
 
   onClickCard(publicId: string) {

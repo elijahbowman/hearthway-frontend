@@ -27,10 +27,10 @@ export interface CreatedListing {
   publicId: string
 }
 
+/** A listing picture; load it with pictureUrl() from shared/picture-url. */
 export interface DisplayPicture {
-  file?: string,
-  fileContentType?: string,
-  isCover?: boolean
+  publicId: string,
+  isCover: boolean
 }
 
 export interface CardListing {

@@ -11,6 +11,7 @@ import {NgClass} from "@angular/common";
 import {FaIconComponent} from "@fortawesome/angular-fontawesome";
 import {AvatarComponent} from "../../layout/navbar/avatar/avatar.component";
 import {BookDateComponent} from "../book-date/book-date.component";
+import {pictureUrl} from "../../shared/picture-url";
 
 @Component({
   selector: 'app-display-listing',
@@ -90,6 +91,11 @@ export class DisplayListingComponent implements OnInit, OnDestroy {
         })
       }
     });
+  }
+
+  // The cover fills half the gallery; the other four are quarter-size tiles.
+  galleryUrl(picture: DisplayPicture): string {
+    return pictureUrl(picture, picture.isCover ? 1280 : 640);
   }
 
   private putCoverPictureFirst(pictures: Array<DisplayPicture>) {

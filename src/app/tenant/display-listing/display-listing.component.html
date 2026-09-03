@@ -1,11 +1,11 @@
 @if (listing && !loading) {
   <h1>{{ listing.description.title.value }}</h1>
   <div class="gallery">
-    @for (picture of listing.pictures; track picture.file; let index = $index) {
+    @for (picture of listing.pictures; track picture.publicId; let index = $index) {
       <div class="border-1 border-transparent bg-cover bg-center bg-no-repeat h-full w-full"
            [class.cover]="picture.isCover"
            [ngClass]="'gallery-picture-'+ (index + 1)"
-           [style.background-image]="'url(' + 'data:' + picture.fileContentType + ';base64,' + picture.file + ')'">
+           [style.background-image]="'url(' + galleryUrl(picture) + ')'">
       </div>
     }
   </div>
