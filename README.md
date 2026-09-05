@@ -36,3 +36,8 @@ Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The appli
 
 ### Build
 Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+
+### Run in a container
+The backend repository's `compose.yaml` builds this app with the `Dockerfile` here and
+runs it behind nginx, which serves the build and proxies `/api`, `/oauth2` and `/login`
+to the backend. See the backend README ("Everything in containers").

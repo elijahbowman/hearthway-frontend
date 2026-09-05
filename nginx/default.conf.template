@@ -1,0 +1,32 @@
+# Serves the Angular app and proxies API and login traffic to the backend, so the
+# browser sees a single origin (needed for the session and CSRF cookies).
+server {
+    listen 80;
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # Matches the backend's multipart limit for picture uploads.
+    client_max_body_size 100m;
+
+    location ~ ^/(api|oauth2|login)/ {
+        proxy_pass ${BACKEND_URL};
+        # $http_host keeps the published port (localhost:4200), which Spring uses
+        # to build the OAuth2 callback URL.
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Forwarded-Host $http_host;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+
+    # Build output has hashed file names, so it can be cached for good.
+    location ~* \.(?:js|css|woff2?|ttf|svg|png|jpg|ico)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        try_files $uri =404;
+    }
+
+    # Client-side routes (/listing, /booking, ...) all load the app.
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}
