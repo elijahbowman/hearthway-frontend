@@ -1,12 +1,10 @@
 # Hearthway frontend
 
-<!-- TODO: replace TODO-USERNAME and TODO-FRONTEND-REPO so the badge points at this repo -->
-[![CI](https://github.com/TODO-USERNAME/TODO-FRONTEND-REPO/actions/workflows/ci.yml/badge.svg)](https://github.com/TODO-USERNAME/TODO-FRONTEND-REPO/actions/workflows/ci.yml)
+[![CI](https://github.com/elijahbowman/hearthway-frontend/actions/workflows/ci.yml/badge.svg)](https://github.com/elijahbowman/hearthway-frontend/actions/workflows/ci.yml)
 
 The Angular frontend of Hearthway, a homestay booking platform. The project overview,
-demo video, architecture and design decisions are in the
-<!-- TODO: replace TODO-USERNAME and TODO-BACKEND-REPO with the real backend repo URL -->
-[backend repository's README](https://github.com/TODO-USERNAME/TODO-BACKEND-REPO).
+architecture and design decisions are in the
+[backend repository's README](https://github.com/elijahbowman/hearthway-backend).
 
 ## Highlights
 
